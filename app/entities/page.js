@@ -17,7 +17,19 @@ export default function EntitiesPage() {
       .from('entities')
       .select('*')
       .order('created_at', { ascending: false })
-    if (!error) setEntities(data)
+    if (error) return
+
+    const { data: history } = await supabase
+      .from('entity_percentage_history')
+      .select('*')
+      .is('effective_to', null)
+
+    const withPercentage = data.map((ent) => {
+      const match = history?.find((h) => h.entity_id === ent.id)
+      return { ...ent, current_percentage: match ? match.percentage : null }
+    })
+
+    setEntities(withPercentage)
   }
 
   useEffect(() => {
@@ -44,7 +56,6 @@ export default function EntitiesPage() {
       return
     }
 
-    // Agar percentage diya hai, uska history record bhi bana do
     if (percentage) {
       await supabase.from('entity_percentage_history').insert({
         entity_id: newEntity.id,
@@ -117,6 +128,7 @@ export default function EntitiesPage() {
             <th>Type</th>
             <th>ID Number</th>
             <th>Parent</th>
+            <th>Percentage</th>
           </tr>
         </thead>
         <tbody>
@@ -128,6 +140,7 @@ export default function EntitiesPage() {
                 <td>{ent.type}</td>
                 <td>{ent.id_number || '-'}</td>
                 <td>{parent ? parent.name : '-'}</td>
+                <td>{ent.current_percentage !== null ? ent.current_percentage + '%' : '-'}</td>
               </tr>
             )
           })}
