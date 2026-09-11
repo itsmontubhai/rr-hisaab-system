@@ -11,6 +11,7 @@ export default function EntitiesPage() {
   const [parentId, setParentId] = useState('')
   const [percentage, setPercentage] = useState('')
   const [message, setMessage] = useState('')
+  const [isError, setIsError] = useState(false)
 
   async function loadEntities() {
     const { data, error } = await supabase
@@ -39,6 +40,7 @@ export default function EntitiesPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setMessage('Saving...')
+    setIsError(false)
 
     const { data: newEntity, error } = await supabase
       .from('entities')
@@ -53,6 +55,7 @@ export default function EntitiesPage() {
 
     if (error) {
       setMessage('Error: ' + error.message)
+      setIsError(true)
       return
     }
 
@@ -64,7 +67,8 @@ export default function EntitiesPage() {
       })
     }
 
-    setMessage('Saved successfully!')
+    setMessage('Saved successfully')
+    setIsError(false)
     setName('')
     setType('admin')
     setIdNumber('')
@@ -73,79 +77,89 @@ export default function EntitiesPage() {
     loadEntities()
   }
 
+  const typeLabels = {
+    admin: 'Admin',
+    master: 'Master',
+    broker_group: 'Broker Group',
+    trading_id: 'Trading ID',
+  }
+
   return (
-    <main style={{ padding: '40px', fontFamily: 'Arial, sans-serif', maxWidth: '700px' }}>
-      <h1>RR Hisaab System — Entities</h1>
-      <p><a href="/">Home</a></p>
+    <main>
+      <h1 className="page-title">Entities</h1>
+      <p className="page-subtitle">Admin, Master, Broker Group aur Trading ID yahan banayein</p>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: '40px', border: '1px solid #ccc', padding: '20px', borderRadius: '8px' }}>
-        <h2>Naya Entity Banao</h2>
+      <div className="card">
+        <div className="card-title">Naya entity banao</div>
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label>Name</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
 
-        <div style={{ marginBottom: '12px' }}>
-          <label>Name: </label><br />
-          <input value={name} onChange={(e) => setName(e.target.value)} required style={{ width: '100%', padding: '8px' }} />
-        </div>
+          <div className="field">
+            <label>Type</label>
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="admin">Admin</option>
+              <option value="master">Master</option>
+              <option value="broker_group">Broker Group</option>
+              <option value="trading_id">Trading ID</option>
+            </select>
+          </div>
 
-        <div style={{ marginBottom: '12px' }}>
-          <label>Type: </label><br />
-          <select value={type} onChange={(e) => setType(e.target.value)} style={{ width: '100%', padding: '8px' }}>
-            <option value="admin">Admin</option>
-            <option value="master">Master</option>
-            <option value="broker_group">Broker Group</option>
-            <option value="trading_id">Trading ID</option>
-          </select>
-        </div>
+          <div className="field">
+            <label>ID Number (Trading ID ke liye zaroori)</label>
+            <input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} />
+          </div>
 
-        <div style={{ marginBottom: '12px' }}>
-          <label>ID Number (Trading ID ke liye zaroori, baaki optional): </label><br />
-          <input value={idNumber} onChange={(e) => setIdNumber(e.target.value)} style={{ width: '100%', padding: '8px' }} />
-        </div>
+          <div className="field">
+            <label>Parent (kiske andar hai)</label>
+            <select value={parentId} onChange={(e) => setParentId(e.target.value)}>
+              <option value="">No parent (top level)</option>
+              {entities.map((ent) => (
+                <option key={ent.id} value={ent.id}>{ent.name} ({typeLabels[ent.type]})</option>
+              ))}
+            </select>
+          </div>
 
-        <div style={{ marginBottom: '12px' }}>
-          <label>Parent (kiske andar hai): </label><br />
-          <select value={parentId} onChange={(e) => setParentId(e.target.value)} style={{ width: '100%', padding: '8px' }}>
-            <option value="">-- Koi Parent Nahi (Top Level) --</option>
-            {entities.map((ent) => (
-              <option key={ent.id} value={ent.id}>{ent.name} ({ent.type})</option>
-            ))}
-          </select>
-        </div>
+          <div className="field">
+            <label>Percentage (%)</label>
+            <input type="number" step="0.01" value={percentage} onChange={(e) => setPercentage(e.target.value)} />
+          </div>
 
-        <div style={{ marginBottom: '12px' }}>
-          <label>Percentage (%): </label><br />
-          <input type="number" step="0.01" value={percentage} onChange={(e) => setPercentage(e.target.value)} style={{ width: '100%', padding: '8px' }} />
-        </div>
+          <button type="submit" className="btn">Save</button>
+          {message && <div className={`msg ${isError ? 'err' : 'ok'}`}>{message}</div>}
+        </form>
+      </div>
 
-        <button type="submit" style={{ padding: '10px 20px' }}>Save</button>
-        {message && <p>{message}</p>}
-      </form>
-
-      <h2>Saari Entities</h2>
-      <table border="1" cellPadding="8" style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Type</th>
-            <th>ID Number</th>
-            <th>Parent</th>
-            <th>Percentage</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entities.map((ent) => {
-            const parent = entities.find((p) => p.id === ent.parent_id)
-            return (
-              <tr key={ent.id}>
-                <td>{ent.name}</td>
-                <td>{ent.type}</td>
-                <td>{ent.id_number || '-'}</td>
-                <td>{parent ? parent.name : '-'}</td>
-                <td>{ent.current_percentage !== null ? ent.current_percentage + '%' : '-'}</td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <div className="card">
+        <div className="card-title">All entities</div>
+        <table className="data">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Type</th>
+              <th>ID Number</th>
+              <th>Parent</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entities.map((ent) => {
+              const parent = entities.find((p) => p.id === ent.parent_id)
+              return (
+                <tr key={ent.id}>
+                  <td>{ent.name}</td>
+                  <td><span className="badge">{typeLabels[ent.type]}</span></td>
+                  <td>{ent.id_number || '—'}</td>
+                  <td>{parent ? parent.name : '—'}</td>
+                  <td>{ent.current_percentage !== null ? ent.current_percentage + '%' : '—'}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
     </main>
   )
 }
