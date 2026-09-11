@@ -15,7 +15,7 @@ export default function PartnersPage() {
 
   async function loadAll() {
     const { data: p } = await supabase.from('partners').select('*').order('name')
-    const { data: e } = await supabase.from('entities').select('*').in('type', ['master', 'trading_id']).order('name')
+    const { data: e } = await supabase.from('entities').select('*').in('type', ['master', 'broker_group', 'trading_id']).order('name')
     const { data: a } = await supabase.from('partner_allocations').select('*').is('effective_to', null)
     setPartners(p || [])
     setEntities(e || [])
@@ -76,10 +76,10 @@ export default function PartnersPage() {
             </select>
           </div>
           <div className="field">
-            <label>Entity (Master pe do toh sab niche apply hoga, ya specific Trading ID pe)</label>
+            <label>Entity (Master ya Broker Group pe do toh sab niche apply hoga, ya specific Trading ID pe)</label>
             <select value={selectedEntity} onChange={(e) => setSelectedEntity(e.target.value)} required>
               <option value="">Select entity</option>
-              {entities.map((e) => <option key={e.id} value={e.id}>{e.name} ({e.type === 'master' ? 'Master' : 'Trading ID'})</option>)}
+              {entities.map((e) => <option key={e.id} value={e.id}>{e.name} ({e.type === 'master' ? 'Master' : e.type === 'broker_group' ? 'Broker Group' : 'Trading ID'})</option>)}
             </select>
           </div>
           <div className="field">

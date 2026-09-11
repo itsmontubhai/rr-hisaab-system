@@ -7,6 +7,8 @@ const links = [
   { href: '/entities', label: 'Entities' },
   { href: '/partners', label: 'Partners' },
   { href: '/hisaab', label: 'Weekly Hisaab' },
+  { href: '/summary', label: 'Summary' },
+  { href: '/broker-report', label: 'Broker Report' },
   { href: '/ledger', label: 'Ledger' },
 ]
 
