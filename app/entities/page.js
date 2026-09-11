@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import EntityTree from './EntityTree'
 
 export default function EntitiesPage() {
   const [entities, setEntities] = useState([])
@@ -133,32 +134,8 @@ export default function EntitiesPage() {
       </div>
 
       <div className="card">
-        <div className="card-title">All entities</div>
-        <table className="data">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>ID Number</th>
-              <th>Parent</th>
-              <th>Percentage</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entities.map((ent) => {
-              const parent = entities.find((p) => p.id === ent.parent_id)
-              return (
-                <tr key={ent.id}>
-                  <td>{ent.name}</td>
-                  <td><span className="badge">{typeLabels[ent.type]}</span></td>
-                  <td>{ent.id_number || '—'}</td>
-                  <td>{parent ? parent.name : '—'}</td>
-                  <td>{ent.current_percentage !== null ? ent.current_percentage + '%' : '—'}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <div className="card-title">Hierarchy</div>
+        <EntityTree entities={entities} />
       </div>
     </main>
   )
