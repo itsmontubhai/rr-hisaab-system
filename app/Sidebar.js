@@ -5,6 +5,9 @@ import { usePathname } from 'next/navigation'
 const links = [
   { href: '/', label: 'Dashboard' },
   { href: '/entities', label: 'Entities' },
+  { href: '/partners', label: 'Partners' },
+  { href: '/hisaab', label: 'Weekly Hisaab' },
+  { href: '/ledger', label: 'Ledger' },
 ]
 
 export default function Sidebar() {
