@@ -13,6 +13,7 @@ export default function EntitiesPage() {
   const [percentage, setPercentage] = useState('')
   const [message, setMessage] = useState('')
   const [isError, setIsError] = useState(false)
+  const [focusId, setFocusId] = useState(null)
 
   async function loadEntities() {
     const { data, error } = await supabase
@@ -135,7 +136,7 @@ export default function EntitiesPage() {
 
       <div className="card">
         <div className="card-title">Hierarchy</div>
-        <EntityTree entities={entities} />
+        <EntityTree entities={entities} focusId={focusId} onFocus={setFocusId} />
       </div>
     </main>
   )
